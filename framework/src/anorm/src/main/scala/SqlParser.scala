@@ -169,11 +169,10 @@ object ResultSetParser {
 
   }
 
-  def singleOpt[A](p: RowParser[A]): ResultSetParser[Option[A]] = ResultSetParser { rows =>
-    single(p)(rows) match {
-      case Error(_) => Success(None)
-      case Success(otherwise) => Success(Some(otherwise))
-    }
+  def singleOpt[A](p: RowParser[A]): ResultSetParser[Option[A]] = ResultSetParser {
+    case head #:: Stream.Empty => p(head).map(Some(_))
+    case Stream.Empty => Success(None)
+    case _ => Success(None)
   }
 
 }
